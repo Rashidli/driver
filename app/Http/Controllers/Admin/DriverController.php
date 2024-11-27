@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DriverResource;
 use App\Models\Driver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+
 class DriverController extends Controller
 {
     /**
@@ -37,7 +39,7 @@ class DriverController extends Controller
             'name' => 'required|string',
             'middlename' => 'nullable|string',
             'phone' => 'required|string|unique:drivers,phone',
-            'vehicle_id' => 'required|exists:vehicles,id',
+            'vehicle_id' => 'nullable|exists:vehicles,id',
             'password' => 'required|string|min:6',
         ]);
 
@@ -55,7 +57,7 @@ class DriverController extends Controller
 
         $driver->vehicles()->syncWithoutDetaching($request->vehicle_id);
 
-        return response()->json($driver, 201);
+        return response()->json(new DriverResource($driver), 201);
     }
 
     /**
@@ -99,7 +101,7 @@ class DriverController extends Controller
             'password' => $request->password ? Hash::make($request->password) : $driver->password,
         ]);
 
-        return response()->json($driver);
+        return response()->json(new DriverResource($driver));
     }
 
     /**

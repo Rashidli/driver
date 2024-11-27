@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Driver;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DriverResource;
 use App\Models\Driver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -31,7 +32,7 @@ class AuthController extends Controller
 
         $token = $driver->createToken('driver_token')->plainTextToken;
 
-        return response()->json(['token' => $token, 'driver' => $driver]);
+        return response()->json(['token' => $token, 'driver' => new DriverResource($driver)]);
     }
 
     public function logout(Request $request) : JsonResponse
@@ -39,6 +40,13 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
 
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    public function show()
+    {
+
+        $driver = auth()->user();
+        return response()->json($driver);
     }
 
 }

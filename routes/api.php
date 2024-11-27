@@ -12,22 +12,30 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::post('/users/login', [UserController::class, 'login']);
+Route::group(['prefix' => 'admin'], function (){
+    Route::post('/users/login', [UserController::class, 'login']);
 
-Route::middleware(['auth:sanctum', 'guard:users'])->group(function () {
-    Route::apiResource('users', UserController::class);
-    Route::apiResource('drivers', DriverController::class);
-    Route::apiResource('vehicles', VehicleController::class);
-    Route::post('drivers/{driver}/remove-vehicle', [DriverController::class, 'removeVehicle']);
-    Route::post('users/logout', [UserController::class, 'logout']);
+    Route::middleware(['auth:users'])->group(function () {
+        Route::apiResource('users', UserController::class);
+        Route::apiResource('drivers', DriverController::class);
+        Route::apiResource('vehicles', VehicleController::class);
+        Route::post('drivers/{driver}/remove-vehicle', [DriverController::class, 'removeVehicle']);
+        Route::post('users/logout', [UserController::class, 'logout']);
+    });
+
 });
 
 
 //drivers application
 
-Route::post('/drivers/login', [AuthController::class, 'login']);
+Route::group(['prefix'=>'app'],function (){
 
-Route::middleware(['auth:sanctum', 'guard:driver'])->group(function () {
-    Route::post('drivers/logout', [AuthController::class, 'logout']);
+    Route::post('/drivers/login', [AuthController::class, 'login']);
+
+    Route::middleware(['auth:drivers'])->group(function () {
+        Route::post('drivers/logout', [AuthController::class, 'logout']);
+        Route::get('drivers/show',[AuthController::class,'show']);
+    });
+
 });
 
