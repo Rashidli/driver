@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\VehicleResource;
 use App\Models\Vehicle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,10 +14,9 @@ class VehicleController extends Controller
     public function index() : JsonResponse
     {
         $vehicles = Vehicle::all();
-        return response()->json($vehicles);
+        return response()->json(VehicleResource::collection($vehicles));
     }
 
-    // Store method to create a new vehicle
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -33,7 +33,9 @@ class VehicleController extends Controller
         }
 
         $vehicle = Vehicle::create($request->all());
-        return response()->json($vehicle, 201);
+
+
+        return response()->json(new VehicleResource($vehicle), 201);
     }
 
     // Update method to edit an existing vehicle
@@ -53,7 +55,8 @@ class VehicleController extends Controller
         }
 
         $vehicle->update($request->all());
-        return response()->json($vehicle);
+
+        return response()->json(new VehicleResource($vehicle));
     }
 
     // Destroy method to delete a vehicle
@@ -66,6 +69,6 @@ class VehicleController extends Controller
     // Show method to fetch details of a single vehicle
     public function show(Vehicle $vehicle): JsonResponse
     {
-        return response()->json($vehicle);
+        return response()->json(new VehicleResource($vehicle));
     }
 }

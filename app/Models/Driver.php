@@ -20,4 +20,5 @@ class Driver extends Authenticatable
     {
         return $this->belongsToMany(Vehicle::class)->withTimestamps()->withTrashed();
     }
+    
 }

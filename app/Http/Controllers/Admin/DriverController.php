@@ -18,7 +18,7 @@ class DriverController extends Controller
     public function index() : JsonResponse
     {
         $drivers = Driver::all();
-        return response()->json($drivers);
+        return response()->json(DriverResource::collection($drivers));
     }
 
     /**
@@ -65,7 +65,7 @@ class DriverController extends Controller
      */
     public function show(Driver $driver)
     {
-        //
+        return response()->json(new DriverResource($driver));
     }
 
     /**
@@ -81,6 +81,11 @@ class DriverController extends Controller
      */
     public function update(Request $request, Driver $driver) :JsonResponse
     {
+        if(!$driver){
+            return response()->json([
+                'message' => 'Driver not found'
+            ], 404);
+        }
         $validator = Validator::make($request->all(), [
             'surname' => 'required|string',
             'name' => 'required|string',
@@ -100,7 +105,7 @@ class DriverController extends Controller
             'phone' => $request->phone,
             'password' => $request->password ? Hash::make($request->password) : $driver->password,
         ]);
-
+        $driver->vehicles()->syncWithoutDetaching($request->vehicle_id);
         return response()->json(new DriverResource($driver));
     }
 
@@ -119,7 +124,8 @@ class DriverController extends Controller
             'vehicle_id' => 'required|exists:vehicles,id',
         ]);
 
-        $driver->vehicles()->detach($request->vehicle_id);
+//        $driver->vehicles()->detach($request->vehicle_id);
+        $driver->vehicles()->updateExistingPivot($request->vehicle_id, ['deleted_at' => now()]);
 
         return response()->json(['message' => 'Vehicle removed successfully']);
     }

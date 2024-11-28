@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index() : JsonResponse
     {
         $users = User::all();
-        return response()->json($users);
+        return response()->json(UserResource::collection($users));
     }
 
     public function store(Request $request) : JsonResponse
@@ -36,7 +36,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json($user, 201);
+        return response()->json(new UserResource($user), 201);
     }
 
     public function update(Request $request, User $user) :JsonResponse
@@ -57,7 +57,7 @@ class UserController extends Controller
             'password' => $request->password ? Hash::make($request->password) : $user->password,
         ]);
 
-        return response()->json($user);
+        return response()->json(new UserResource($user));
     }
 
     public function destroy(User $user) : JsonResponse
@@ -85,14 +85,19 @@ class UserController extends Controller
 
         $token = $user->createToken('admin_token')->plainTextToken;
 
-        return response()->json(['token' => $token, 'user' => $user]);
+        return response()->json(['token' => $token, 'user' => new UserResource($user)]);
     }
 
     public function logout(Request $request) : JsonResponse
     {
-        // Revoke all tokens for the authenticated user
-        $request->user()->tokens()->delete();
 
+        $request->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully']);
+
+    }
+
+    public function show(User $user)
+    {
+        return response()->json(new UserResource($user));
     }
 }
