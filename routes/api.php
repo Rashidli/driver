@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VehicleController;
 use App\Http\Controllers\Driver\AuthController;
@@ -11,14 +13,16 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
 Route::group(['prefix' => 'admin'], function (){
+
     Route::post('/users/login', [UserController::class, 'login']);
 
     Route::middleware(['auth:users'])->group(function () {
         Route::apiResource('users', UserController::class);
         Route::apiResource('drivers', DriverController::class);
         Route::apiResource('vehicles', VehicleController::class);
+        Route::apiResource('orders', OrderController::class);
+        Route::apiResource('customers', CustomerController::class);
         Route::post('drivers/{driver}/remove-vehicle', [DriverController::class, 'removeVehicle']);
         Route::post('users/logout', [UserController::class, 'logout']);
     });

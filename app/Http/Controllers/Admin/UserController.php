@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -90,14 +91,9 @@ class UserController extends Controller
 
     public function logout(Request $request) : JsonResponse
     {
-
+        // Revoke all tokens for the authenticated user
         $request->user()->tokens()->delete();
+
         return response()->json(['message' => 'Logged out successfully']);
-
-    }
-
-    public function show(User $user)
-    {
-        return response()->json(new UserResource($user));
     }
 }

@@ -33,8 +33,6 @@ class VehicleController extends Controller
         }
 
         $vehicle = Vehicle::create($request->all());
-
-
         return response()->json(new VehicleResource($vehicle), 201);
     }
 
@@ -55,7 +53,6 @@ class VehicleController extends Controller
         }
 
         $vehicle->update($request->all());
-
         return response()->json(new VehicleResource($vehicle));
     }
 
